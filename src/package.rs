@@ -9,7 +9,7 @@ pub struct Package {
     pub description: String,
     pub repo: Remote,
     pub install_path: String,
-    pub dependancies: Option<Vec<String>>,
+    pub dependencies: Vec<String>,
 }
 
 #[derive(Debug, Deserialize, Clone)]
