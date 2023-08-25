@@ -1,7 +1,7 @@
 use colored::{ColoredString, Colorize};
 
 fn format(t: ColoredString, message: &str) {
-    println!("[{}] {}", t, message);
+    println!("  [{}] {}", t, message);
 }
 
 pub fn info(message: &str) {

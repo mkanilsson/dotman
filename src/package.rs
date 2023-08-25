@@ -1,4 +1,8 @@
+use std::env::var;
+
 use serde::Deserialize;
+
+use crate::errors::{DotManResult, Error};
 
 use super::remote::Remote;
 
@@ -10,6 +14,21 @@ pub struct Package {
     pub repo: Remote,
     pub install_path: String,
     pub dependencies: Vec<String>,
+}
+
+impl Package {
+    pub fn url(&self) -> String {
+        self.repo.url()
+    }
+
+    pub fn install_path(&self) -> DotManResult<String> {
+        let home = match var("HOME") {
+            Ok(h) => h,
+            Err(_) => return Err(Error::MissingHomeVariable),
+        };
+
+        Ok(self.install_path.replace("$HOME", &home))
+    }
 }
 
 #[derive(Debug, Deserialize, Clone)]

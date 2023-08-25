@@ -62,4 +62,15 @@ impl Repository {
             collections,
         });
     }
+
+    // This should only be called when the package is known to exist
+    pub fn get_package_from_string(&self, name: &str) -> Package {
+        for pkg in &self.packages {
+            if pkg.name == name {
+                return pkg.clone();
+            }
+        }
+
+        unreachable!();
+    }
 }
