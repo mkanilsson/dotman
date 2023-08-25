@@ -37,17 +37,37 @@ async fn main() {
     };
 
     match &cli.command {
-        Commands::Install { packages } => match commands::install(&conf, &repo, packages) {
+        Commands::Install { packages } => match commands::install_or_update(&conf, &repo, packages)
+        {
             Ok(_) => {}
             Err(e) => {
                 e.print_error();
                 return;
             }
         },
+        Commands::Update { packages } => {
+            match commands::install_or_update(&conf, &repo, packages) {
+                Ok(_) => {}
+                Err(e) => {
+                    e.print_error();
+                    return;
+                }
+            }
+        }
         Commands::InstallEverything => {
-            print::fatal("Install everything hasn't been implemented yet")
+            let mut all_packages = vec![];
+            for pkg in &repo.packages {
+                all_packages.push(pkg.name.clone());
+            }
+
+            match commands::install_or_update(&conf, &repo, &all_packages) {
+                Ok(_) => {}
+                Err(e) => {
+                    e.print_error();
+                    return;
+                }
+            }
         }
         Commands::Search { query: _ } => print::fatal("Search hasn't been implemented yet"),
-        Commands::Update { packages: _ } => print::fatal("Update hasn't been implemented yet"),
     }
 }

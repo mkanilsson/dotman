@@ -12,7 +12,11 @@ use crate::{
     required_packages, script,
 };
 
-pub fn install(conf: &Config, repo: &Repository, packages: &Vec<String>) -> DotManResult<()> {
+pub fn install_or_update(
+    conf: &Config,
+    repo: &Repository,
+    packages: &Vec<String>,
+) -> DotManResult<()> {
     let deps_pb = ProgressBar::new_spinner();
     deps_pb.set_message(format!(
         "[{}] Loading dependencies...",
