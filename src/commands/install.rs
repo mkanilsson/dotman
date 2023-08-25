@@ -9,7 +9,7 @@ use crate::{
     gitactions::GitWrapper,
     print,
     repo::Repository,
-    required_packages,
+    required_packages, script,
 };
 
 pub fn install(conf: &Config, repo: &Repository, packages: &Vec<String>) -> DotManResult<()> {
@@ -84,7 +84,11 @@ pub fn install(conf: &Config, repo: &Repository, packages: &Vec<String>) -> DotM
                     install_path.italic()
                 ));
 
-                // TODO: Run `.dotman-postinstall` script
+                print::info(&format!(
+                    "Running `{}` script if it exists...",
+                    ".dotman-postinstall".italic()
+                ));
+                script::run_postinstall(&install_path)?;
             }
             Err(e) => return Err(e),
             Ok(wrapper) => {
@@ -100,6 +104,7 @@ pub fn install(conf: &Config, repo: &Repository, packages: &Vec<String>) -> DotM
                         current_branch.italic(),
                         "master".bold()
                     ));
+                    print::warning("Changes won't take effect until you switch back to master!");
                     wrapper.checkout_branch("master")?;
                     print::success(&format!("Switched to '{}' branch!", "master".bold()));
                 }
@@ -119,6 +124,12 @@ pub fn install(conf: &Config, repo: &Repository, packages: &Vec<String>) -> DotM
                         print::success("Changes has been pulled!");
                     }
                 }
+
+                print::info(&format!(
+                    "Running `{}` script if it exists...",
+                    ".dotman-postupdate".italic()
+                ));
+                script::run_postupdate(&install_path)?;
 
                 // TODO: Run `.dotman-postupdate` script
 

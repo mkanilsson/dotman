@@ -13,6 +13,7 @@ mod print;
 mod remote;
 mod repo;
 mod required_packages;
+mod script;
 mod source;
 
 #[async_std::main]
