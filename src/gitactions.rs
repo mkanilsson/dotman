@@ -24,7 +24,6 @@ impl GitWrapper {
     }
 
     pub fn clone(url: &str, path: &str) -> DotManResult<Self> {
-        println!("{:#?}", path);
         let output = Command::new("git").args(["clone", url, path]).output()?;
 
         let wrapper = Self {
