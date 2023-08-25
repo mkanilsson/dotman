@@ -17,10 +17,14 @@ impl GitWrapper {
             path: path.to_owned(),
         };
 
-        // HACK: If this fails, then it isn't a git repo
-        wrapper.current_branch_name()?;
-
-        Ok(wrapper)
+        match wrapper.get_remote_name() {
+            Err(Error::RemoteNotFound(_)) => Err(Error::Git(GitError::NotARepository(format!(
+                "{} isn't a dotman repo...",
+                url
+            )))),
+            Err(e) => Err(e),
+            Ok(_) => Ok(wrapper),
+        }
     }
 
     pub fn clone(url: &str, path: &str) -> DotManResult<Self> {
@@ -64,7 +68,7 @@ impl GitWrapper {
         Ok(())
     }
 
-    pub fn get_remote_name_from_url(&self, url: &str) -> DotManResult<String> {
+    pub fn get_remote_name(&self) -> DotManResult<String> {
         let output = Command::new("git")
             .current_dir(Path::new(&self.path))
             .args(["remote", "-v"])
@@ -77,7 +81,7 @@ impl GitWrapper {
         let output = String::from_utf8(output.stdout)?;
 
         for line in output.lines() {
-            if line.contains(url) {
+            if line.contains(&self.url) {
                 return Ok(line
                     .split('\t')
                     .collect::<Vec<&str>>()
