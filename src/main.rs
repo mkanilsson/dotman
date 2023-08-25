@@ -69,5 +69,6 @@ async fn main() {
             }
         }
         Commands::Search { query: _ } => print::fatal("Search hasn't been implemented yet"),
+        Commands::Inspect { package: _ } => print::fatal("Inspect hasn't been implemented yet"),
     }
 }

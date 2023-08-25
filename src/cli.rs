@@ -28,9 +28,15 @@ pub enum Commands {
     /// Search for packages and collections
     Search { query: String },
 
+    /// View package information
+    Inspect { package: String },
+
     /// Install every package
     InstallEverything,
 
     /// Updated selected packages, will install in not already installed
-    Update { packages: Vec<String> },
+    Update {
+        #[clap(required = true)]
+        packages: Vec<String>,
+    },
 }
