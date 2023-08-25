@@ -35,19 +35,14 @@ async fn main() {
         }
     };
 
-    println!("{:#?}", repo);
-
-    let packages_to_install = vec!["hyprland".to_owned()];
-    match required_packages::gather_required_packages(&packages_to_install, &repo) {
-        Ok(pkgs) => println!("Packages: {:#?}", pkgs),
-        Err(e) => {
-            e.print_fatal();
-            panic!();
-        }
-    }
-
     match &cli.command {
-        Commands::Install { packages: _ } => print::fatal("Install hasn't been implemented yet"),
+        Commands::Install { packages } => match commands::install(&conf, &repo, packages) {
+            Ok(_) => {}
+            Err(e) => {
+                e.print_error();
+                return;
+            }
+        },
         Commands::InstallEverything => {
             print::fatal("Install everything hasn't been implemented yet")
         }

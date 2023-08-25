@@ -1,12 +1,16 @@
 use std::string::FromUtf8Error;
 
+use inquire::InquireError;
+
 use crate::print;
 
+#[derive(Debug)]
 pub enum GitError {
     NotARepository(String),
     Unknown(String),
 }
 
+#[derive(Debug)]
 pub enum Error {
     ConfigFileNotFound(String),
     MissingHomeVariable,
@@ -14,12 +18,12 @@ pub enum Error {
     Parse(toml::de::Error),
     IO(std::io::Error),
     Utf8(FromUtf8Error),
+    Inquire(InquireError),
 
     Git(GitError),
     RemoteNotFound(String),
     MalformattedPackage(String),
     MalformattedPackageWithError(String, toml::de::Error),
-    DependencyMissing(String, String), // Package, Missing dependency
     UnknownPackage(String),
 }
 
@@ -42,10 +46,8 @@ impl Error {
             Error::MalformattedPackage(name) => func(&format!("'{name}' is malformatted...")),
             Error::Utf8(e) => func(&e.to_string()),
             Error::RemoteNotFound(message) => func(message),
-            Error::DependencyMissing(p, dep) => func(&format!(
-                "'{dep}' can't be found but is required by '{p}'..."
-            )),
-            Error::UnknownPackage(p) => func(&format!("'{p}' can't be found...")),
+            Error::UnknownPackage(p) => func(&format!("Package '{p}' can't be found...")),
+            Error::Inquire(e) => func(&format!("Something went wrong with inquire...\n\t{}", e)),
         }
     }
 
@@ -81,6 +83,12 @@ impl From<std::io::Error> for Error {
 impl From<FromUtf8Error> for Error {
     fn from(value: FromUtf8Error) -> Self {
         Self::Utf8(value)
+    }
+}
+
+impl From<InquireError> for Error {
+    fn from(value: InquireError) -> Self {
+        Self::Inquire(value)
     }
 }
 

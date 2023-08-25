@@ -20,7 +20,10 @@ pub struct Cli {
 #[derive(Subcommand)]
 pub enum Commands {
     /// Install selected packages, will update if already installed
-    Install { packages: Vec<String> },
+    Install {
+        #[clap(required = true)]
+        packages: Vec<String>,
+    },
 
     /// Search for packages and collections
     Search { query: String },
