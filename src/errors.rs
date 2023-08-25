@@ -19,6 +19,8 @@ pub enum Error {
     RemoteNotFound(String),
     MalformattedPackage(String),
     MalformattedPackageWithError(String, toml::de::Error),
+    DependencyMissing(String, String), // Package, Missing dependency
+    UnknownPackage(String),
 }
 
 impl Error {
@@ -40,6 +42,10 @@ impl Error {
             Error::MalformattedPackage(name) => func(&format!("'{name}' is malformatted...")),
             Error::Utf8(e) => func(&e.to_string()),
             Error::RemoteNotFound(message) => func(message),
+            Error::DependencyMissing(p, dep) => func(&format!(
+                "'{dep}' can't be found but is required by '{p}'..."
+            )),
+            Error::UnknownPackage(p) => func(&format!("'{p}' can't be found...")),
         }
     }
 
