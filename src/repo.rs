@@ -1,11 +1,10 @@
-use std::{env::var, fs};
+use std::fs;
 
 use crate::{
     config::Config,
-    errors::{self, DotManResult, Error, GitError},
+    errors::{DotManResult, Error, GitError},
     gitactions::GitWrapper,
     package::{Collection, Package, PackageFile},
-    print,
 };
 
 #[derive(Debug)]

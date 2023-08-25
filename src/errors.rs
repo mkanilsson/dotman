@@ -12,7 +12,7 @@ pub enum GitError {
 
 #[derive(Debug)]
 pub enum Error {
-    ConfigFileNotFound(String),
+    ConfigFileNotFound,
     MissingHomeVariable,
 
     Parse(toml::de::Error),
@@ -30,9 +30,7 @@ pub enum Error {
 impl Error {
     fn print(&self, func: fn(&str) -> ()) {
         match self {
-            Error::ConfigFileNotFound(message) => {
-                func(&format!("Config file not found...\n\t{}", message))
-            }
+            Error::ConfigFileNotFound => func("Config file not found..."),
             Error::Parse(e) => func(&format!("Parse error...\n\t{}", e.message())),
             Error::IO(e) => func(&format!("IO error...\n\t{}", &e.to_string())),
             Error::Git(e) => match e {
@@ -49,14 +47,6 @@ impl Error {
             Error::UnknownPackage(p) => func(&format!("Package '{p}' can't be found...")),
             Error::Inquire(e) => func(&format!("Something went wrong with inquire...\n\t{}", e)),
         }
-    }
-
-    pub fn print_info(&self) {
-        self.print(print::info)
-    }
-
-    pub fn print_warning(&self) {
-        self.print(print::info)
     }
 
     pub fn print_error(&self) {

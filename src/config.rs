@@ -1,4 +1,4 @@
-use std::{env::var, fs};
+use std::{env::var, fs, io};
 
 use crate::{
     errors::{DotManResult, Error},
@@ -22,7 +22,12 @@ impl Config {
             Err(_) => Err(Error::MissingHomeVariable),
         }?;
 
-        let content = fs::read_to_string(format!("{}/.config/dotman/config.toml", home_path))?;
+        let content = match fs::read_to_string(format!("{}/.config/dotman/config.toml", home_path))
+        {
+            Err(e) if e.kind() == io::ErrorKind::NotFound => return Err(Error::ConfigFileNotFound),
+            Err(e) => return Err(e.into()),
+            Ok(c) => c,
+        };
 
         Ok(toml::from_str(&content)?)
     }

@@ -137,10 +137,6 @@ impl GitWrapper {
         self.path.clone()
     }
 
-    pub fn url(&self) -> String {
-        self.url.clone()
-    }
-
     fn handle_error(&self, output: Output) -> Error {
         let output = match String::from_utf8(output.stderr) {
             Ok(o) => o,

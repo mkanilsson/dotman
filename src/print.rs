@@ -56,20 +56,4 @@ impl Printer {
             message
         ))
     }
-
-    pub fn error(&self, message: &str) {
-        error(&format!(
-            "[Package '{}'] {}",
-            self.package.bold().italic(),
-            message
-        ))
-    }
-
-    pub fn fatal(&self, message: &str) {
-        fatal(&format!(
-            "[Package '{}'] {}",
-            self.package.bold().italic(),
-            message
-        ))
-    }
 }
