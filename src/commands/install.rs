@@ -31,7 +31,7 @@ pub fn install(conf: &Config, repo: &Repository, packages: &Vec<String>) -> DotM
         .join(", ");
 
     print::info(&format!(
-        "Packages ({}) {} will be installed.",
+        "Packages ({}) {} will be installed or updated.",
         packages.len(),
         packages_string
     ));
@@ -54,21 +54,24 @@ pub fn install(conf: &Config, repo: &Repository, packages: &Vec<String>) -> DotM
         let install_path = pkg.install_path()?;
         let url = pkg.url();
 
-        print::info(&format!(
+        let pp = print::Printer::new(pkg.name.clone());
+
+        pp.info(&format!(
             "Looking if '{}' already exists...",
             install_path.italic()
         ));
 
         match GitWrapper::open(&url, &install_path) {
             Err(Error::Git(GitError::NotARepository(_))) => {
-                print::warning(&format!(
+                print::info(&format!("Installing {}!", pkg.name.bold().italic()));
+                pp.warning(&format!(
                     "'{}' exists but isn't a dotman repo, removing...",
                     install_path.italic()
                 ));
 
                 fs::remove_dir_all(install_path.clone())?;
 
-                print::info(&format!(
+                pp.info(&format!(
                     "Cloning {} from {} to {}... ",
                     pkg.name.italic().bold(),
                     url.italic(),
@@ -77,70 +80,79 @@ pub fn install(conf: &Config, repo: &Repository, packages: &Vec<String>) -> DotM
 
                 GitWrapper::clone(&pkg.url(), &pkg.install_path()?)?;
 
-                print::success(&format!(
+                pp.success(&format!(
                     "{} cloned from {} to {}! ",
                     pkg.name.italic().bold(),
                     url.italic(),
                     install_path.italic()
                 ));
 
-                print::info(&format!(
+                pp.info(&format!(
                     "Running `{}` script if it exists...",
                     ".dotman-postinstall".italic()
                 ));
                 script::run_postinstall(&install_path)?;
+
+                print::success(&format!(
+                    "{} has been successfully updated!",
+                    pkg.name.bold().italic()
+                ));
             }
             Err(e) => return Err(e),
             Ok(wrapper) => {
-                print::info(&format!(
+                print::info(&format!("Updating {}!", pkg.name.bold().italic()));
+                pp.info(&format!(
                     "'{}' exists and is a dotman repo, updating instead...",
                     install_path.italic()
                 ));
 
                 let current_branch = wrapper.current_branch_name()?;
                 if current_branch != "master" {
-                    print::info(&format!(
+                    pp.info(&format!(
                         "Currently on '{}' branch. switching to '{}' branch...",
                         current_branch.italic(),
                         "master".bold()
                     ));
-                    print::warning("Changes won't take effect until you switch back to master!");
+                    pp.warning("Changes won't take effect until you switch back to master!");
                     wrapper.checkout_branch("master")?;
-                    print::success(&format!("Switched to '{}' branch!", "master".bold()));
+                    pp.success(&format!("Switched to '{}' branch!", "master".bold()));
                 }
 
                 let remote = wrapper.get_remote_name()?;
                 // FIXME: Handle merge confilcts somehow...
                 match conf.git.update_type {
                     GitUpdateType::FetchRebase => {
-                        print::info("Fetching and rebasing changes...");
+                        pp.info("Fetching and rebasing changes...");
                         wrapper.fetch(&remote)?;
                         wrapper.rebase()?;
-                        print::success("Changes has been fetched and rebased!");
+                        pp.success("Changes has been fetched and rebased!");
                     }
                     GitUpdateType::Pull => {
-                        print::info("Pulling changes...");
+                        pp.info("Pulling changes...");
                         wrapper.pull(&remote)?;
-                        print::success("Changes has been pulled!");
+                        pp.success("Changes has been pulled!");
                     }
                 }
 
-                print::info(&format!(
+                pp.info(&format!(
                     "Running `{}` script if it exists...",
                     ".dotman-postupdate".italic()
                 ));
                 script::run_postupdate(&install_path)?;
 
-                // TODO: Run `.dotman-postupdate` script
-
                 if current_branch != "master" {
-                    print::info(&format!(
+                    pp.info(&format!(
                         "Switching back to '{}' branch...",
                         current_branch.italic(),
                     ));
                     wrapper.checkout_branch(&current_branch)?;
-                    print::success(&format!("Switched to '{}' branch!", current_branch.bold()));
+                    pp.success(&format!("Switched to '{}' branch!", current_branch.bold()));
                 }
+
+                print::success(&format!(
+                    "{} has been successfully updated!",
+                    pkg.name.bold().italic()
+                ));
             }
         }
     }
