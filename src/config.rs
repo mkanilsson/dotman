@@ -12,7 +12,7 @@ pub struct Config {
     remote: Remote,
     path: String,
 
-    git: GitConfig,
+    pub git: GitConfig,
 }
 
 impl Config {
@@ -45,7 +45,7 @@ impl Config {
 #[serde(rename_all = "kebab-case")]
 pub struct GitConfig {
     #[serde(default = "GitUpdateType::default")]
-    update_type: GitUpdateType,
+    pub update_type: GitUpdateType,
 }
 
 #[derive(Debug, Deserialize)]

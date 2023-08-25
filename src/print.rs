@@ -4,6 +4,10 @@ fn format(t: ColoredString, message: &str) {
     println!("  [{}] {}", t, message);
 }
 
+pub fn success(message: &str) {
+    format("SUCCESS".green().bold(), message);
+}
+
 pub fn info(message: &str) {
     format("INFO".blue().bold(), message);
 }
