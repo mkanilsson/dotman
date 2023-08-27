@@ -1,7 +1,7 @@
 use colored::{ColoredString, Colorize};
 
 fn format(t: ColoredString, message: &str) {
-    println!("  [{: ^7}] {}", t, message);
+    println!("{}: {}", t, message);
 }
 
 pub fn success(message: &str) {
@@ -9,7 +9,7 @@ pub fn success(message: &str) {
 }
 
 pub fn info(message: &str) {
-    format("INFO".blue().bold(), message);
+    println!("{}", message);
 }
 
 pub fn warning(message: &str) {
@@ -34,26 +34,14 @@ impl Printer {
     }
 
     pub fn success(&self, message: &str) {
-        success(&format!(
-            "[Package '{}'] {}",
-            self.package.bold().italic(),
-            message
-        ))
+        success(&format!("{}: {}", self.package.bold().italic(), message))
     }
 
     pub fn info(&self, message: &str) {
-        info(&format!(
-            "[Package '{}'] {}",
-            self.package.bold().italic(),
-            message
-        ))
+        info(&format!("{}: {}", self.package.bold().italic(), message))
     }
 
     pub fn warning(&self, message: &str) {
-        warning(&format!(
-            "[Package '{}'] {}",
-            self.package.bold().italic(),
-            message
-        ))
+        warning(&format!("{}: {}", self.package.bold().italic(), message))
     }
 }

@@ -18,15 +18,9 @@ pub fn install_or_update(
     packages: &Vec<String>,
 ) -> DotManResult<()> {
     let deps_pb = ProgressBar::new_spinner();
-    deps_pb.set_message(format!(
-        "[{}] Loading dependencies...",
-        "INFO".blue().bold()
-    ));
+    deps_pb.set_message("Loading dependencies...");
     let packages = required_packages::gather_required_packages(packages, &repo)?;
-    deps_pb.finish_with_message(format!(
-        "[{}] Loading dependencies... DONE",
-        "INFO".blue().bold()
-    ));
+    deps_pb.finish_with_message("Loading dependencies... DONE");
 
     let packages_string = packages
         .iter()
