@@ -1,8 +1,12 @@
 use std::env::var;
 
+use colored::Colorize;
 use serde::Deserialize;
 
-use crate::errors::{DotManResult, Error};
+use crate::{
+    errors::{DotManResult, Error},
+    print,
+};
 
 use super::remote::Remote;
 
@@ -29,6 +33,18 @@ impl Package {
 
         Ok(self.install_path.replace("$HOME", &home))
     }
+
+    pub fn pprint(&self) {
+        print::info(&format!(
+            "{} - {}\n  {}: {}\n  {}: {}",
+            self.name.blue().bold(),
+            self.description.italic(),
+            "Url".bold(),
+            self.repo.url().italic(),
+            "Install Path".bold(),
+            self.install_path.italic()
+        ))
+    }
 }
 
 #[derive(Debug, Deserialize, Clone)]
@@ -37,6 +53,25 @@ pub struct Collection {
     pub name: String,
     pub description: String,
     pub packages: Vec<String>,
+}
+
+impl Collection {
+    pub fn pprint(&self) {
+        let packages = self
+            .packages
+            .iter()
+            .map(|pkg| format!("{}", pkg.italic()))
+            .collect::<Vec<_>>()
+            .join(", ");
+
+        print::info(&format!(
+            "{} - {}\n  {}: {}",
+            self.name.bold().yellow(),
+            self.description.italic(),
+            "Packages".bold(),
+            packages
+        ))
+    }
 }
 
 #[derive(Debug, Deserialize)]
