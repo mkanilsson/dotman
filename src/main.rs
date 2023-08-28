@@ -16,8 +16,7 @@ mod required_packages;
 mod script;
 mod source;
 
-#[async_std::main]
-async fn main() {
+fn main() {
     let cli = cli::Cli::parse();
 
     let conf = match Config::load() {
