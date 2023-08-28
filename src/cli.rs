@@ -35,7 +35,7 @@ pub enum Commands {
     /// View package information
     Inspect { package: String },
 
-    /// Install every package
+    /// Install every package avaliable in the repository
     InstallEverything {
         /// Skip confirmation
         #[arg(short = 'y', long)]
