@@ -5,14 +5,17 @@
 ```bash
 Install selected packages, will update if already installed
 
-Usage: dotman install <PACKAGES>...
+Usage: dotman install [OPTIONS] <PACKAGES>...
 
 Arguments:
   <PACKAGES>...
 
 Options:
-  -h, --help     Print help
-  -V, --version  Print version
+  -y, --yes         Skip confirmation
+      --force       Force install, this will override existing configurations
+      --no-scripts  Don't run .dotman-postinstall or .dotman-postupdate script
+  -h, --help        Print help
+  -V, --version     Print version
 ```
 
 Example: 
@@ -25,15 +28,17 @@ Example:
 ```bash
 Updated selected packages, will install in not already installed
 
-Usage: dotman update <PACKAGES>...
+Usage: dotman update [OPTIONS] <PACKAGES>...
 
 Arguments:
   <PACKAGES>...
 
 Options:
-  -h, --help     Print help
-  -V, --version  Print version
-
+  -y, --yes         Skip confirmation
+      --force       Force install, this will override existing configurations
+      --no-scripts  Don't run .dotman-postinstall or .dotman-postupdate script
+  -h, --help        Print help
+  -V, --version     Print version
 ```
 
 Example: 
@@ -44,17 +49,20 @@ Example:
 ## Update
 
 ```bash
-Install every package
+Install every package avaliable in the repository
 
-Usage: dotman install-everything
+Usage: dotman install-everything [OPTIONS]
 
 Options:
-  -h, --help     Print help
-  -V, --version  Print version
+  -y, --yes         Skip confirmation
+      --force       Force install, this will override existing configurations
+      --no-scripts  Don't run .dotman-postinstall or .dotman-postupdate script
+  -h, --help        Print help
+  -V, --version     Print version
 ```
 
 Example: 
-`dotman install-everything` this will install every package that exist in the repo.
+`dotman install-everything` this will install every package that exist in the repository.
 
 ## Search
 
@@ -64,7 +72,7 @@ Search for packages and collections
 Usage: dotman search <QUERY>
 
 Arguments:
-  <QUERY>
+  <QUERY>  
 
 Options:
   -h, --help     Print help
@@ -72,6 +80,6 @@ Options:
 ```
 
 Example:
-`dotman search x1` this will find all packages and collections that, in some way, contains "x11".
+`dotman search x1` this will find all packages and collections that, in some way, contains "x1".
 
-> NOTE: All text will be trimed and comparied in lowercase
+> NOTE: All text will be trimmed and comparied in lowercase

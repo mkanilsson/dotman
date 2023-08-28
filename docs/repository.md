@@ -109,9 +109,9 @@ packages = [
 
 #### TOML
 
-| Name         | Datatype        | Description                                                                              |
-|--------------|-----------------|------------------------------------------------------------------------------------------|
-| name         | string          | The name of the package                                                                  |
-| description  | string          | The description of the package                                                           |
-| packages     | array of string | The packages that this collection will install                                           |
+| Name        | Datatype        | Description                                    |
+|-------------|-----------------|------------------------------------------------|
+| name        | string          | The name of the package                        |
+| description | string          | The description of the package                 |
+| packages    | array of string | The packages that this collection will install |
 
