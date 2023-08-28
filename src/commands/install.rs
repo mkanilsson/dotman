@@ -4,6 +4,7 @@ use colored::Colorize;
 use indicatif::ProgressBar;
 
 use crate::{
+    cli::InstallUpdateArgs,
     config::{Config, GitUpdateType},
     errors::{DotManResult, Error, GitError},
     gitactions::GitWrapper,
@@ -15,6 +16,7 @@ use crate::{
 pub fn install_or_update(
     conf: &Config,
     repo: &Repository,
+    args: InstallUpdateArgs,
     packages: &Vec<String>,
 ) -> DotManResult<()> {
     let deps_pb = ProgressBar::new_spinner();
@@ -34,15 +36,22 @@ pub fn install_or_update(
         packages_string
     ));
 
-    // FIXME: Handle OperationInterupted
-    let result = inquire::Confirm::new("Do you want to procced?")
-        .with_default(true)
-        .with_help_message("This will remove existing configurations")
-        .prompt()?;
+    if !(*args.yes) {
+        // FIXME: Handle OperationInterupted
+        let mut confirm = inquire::Confirm::new("Do you want to procced?").with_default(true);
 
-    if !result {
-        print::info("Okay, exiting...");
-        return Ok(());
+        if *args.force {
+            confirm = confirm.with_help_message("This might remove existing configurations");
+        }
+
+        let result = confirm.prompt()?;
+
+        if !result {
+            print::info("Okay, exiting...");
+            return Ok(());
+        }
+    } else {
+        print::warning("Running with no confirmation...");
     }
 
     // TODO: Make the required parent directories
@@ -61,7 +70,15 @@ pub fn install_or_update(
 
         match GitWrapper::open(&url, &install_path) {
             Err(Error::Git(GitError::NotARepository(_))) => {
-                print::info(&format!("Installing {}!", pkg.name.bold().italic()));
+                if !(*args.force) {
+                    pp.fatal(&format!(
+                        "'{}' exists but isn't a dotman repo, exiting...",
+                        install_path.italic()
+                    ));
+
+                    unreachable!();
+                }
+
                 pp.warning(&format!(
                     "'{}' exists but isn't a dotman repo, removing...",
                     install_path.italic()
@@ -85,11 +102,18 @@ pub fn install_or_update(
                     install_path.italic()
                 ));
 
-                pp.info(&format!(
-                    "Running `{}` script if it exists...",
-                    ".dotman-postinstall".italic()
-                ));
-                script::run_postinstall(&install_path)?;
+                if !(*args.no_scripts) {
+                    pp.info(&format!(
+                        "Running `{}` script if it exists...",
+                        ".dotman-postinstall".italic()
+                    ));
+                    script::run_postinstall(&install_path)?;
+                } else {
+                    pp.warning(&format!(
+                        "Not running `{}` may require extra manual configuration...",
+                        ".dotman-install".italic()
+                    ));
+                }
 
                 print::success(&format!(
                     "{} has been successfully updated!",
@@ -132,11 +156,18 @@ pub fn install_or_update(
                     }
                 }
 
-                pp.info(&format!(
-                    "Running `{}` script if it exists...",
-                    ".dotman-postupdate".italic()
-                ));
-                script::run_postupdate(&install_path)?;
+                if !(*args.no_scripts) {
+                    pp.info(&format!(
+                        "Running `{}` script if it exists...",
+                        ".dotman-postupdate".italic()
+                    ));
+                    script::run_postupdate(&install_path)?;
+                } else {
+                    pp.warning(&format!(
+                        "Not running `{}` may require extra manual configuration...",
+                        ".dotman-postupdate".italic()
+                    ));
+                }
 
                 if current_branch != "master" {
                     pp.info(&format!(

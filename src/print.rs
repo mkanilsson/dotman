@@ -44,4 +44,8 @@ impl Printer {
     pub fn warning(&self, message: &str) {
         warning(&format!("{}: {}", self.package.bold().italic(), message))
     }
+
+    pub fn fatal(&self, message: &str) {
+        fatal(&format!("{}: {}", self.package.bold().italic(), message))
+    }
 }

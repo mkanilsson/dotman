@@ -7,14 +7,6 @@ use clap::{command, Parser, Subcommand};
 pub struct Cli {
     #[command(subcommand)]
     pub command: Commands,
-
-    /// Skip confirmation
-    #[arg(short = 'y', long)]
-    yes: bool,
-
-    /// Force install, this will override existing configurations
-    #[arg(long)]
-    force: bool,
 }
 
 #[derive(Subcommand)]
@@ -23,6 +15,18 @@ pub enum Commands {
     Install {
         #[clap(required = true)]
         packages: Vec<String>,
+
+        /// Skip confirmation
+        #[arg(short = 'y', long)]
+        yes: bool,
+
+        /// Force install, this will override existing configurations
+        #[arg(long)]
+        force: bool,
+
+        /// Don't run .dotman-postinstall or .dotman-postupdate script
+        #[arg(long)]
+        no_scripts: bool,
     },
 
     /// Search for packages and collections
@@ -32,11 +36,41 @@ pub enum Commands {
     Inspect { package: String },
 
     /// Install every package
-    InstallEverything,
+    InstallEverything {
+        /// Skip confirmation
+        #[arg(short = 'y', long)]
+        yes: bool,
+
+        /// Force install, this will override existing configurations
+        #[arg(long)]
+        force: bool,
+
+        /// Don't run .dotman-postinstall or .dotman-postupdate script
+        #[arg(long)]
+        no_scripts: bool,
+    },
 
     /// Updated selected packages, will install in not already installed
     Update {
         #[clap(required = true)]
         packages: Vec<String>,
+
+        /// Skip confirmation
+        #[arg(short = 'y', long)]
+        yes: bool,
+
+        /// Force install, this will override existing configurations
+        #[arg(long)]
+        force: bool,
+
+        /// Don't run .dotman-postinstall or .dotman-postupdate script
+        #[arg(long)]
+        no_scripts: bool,
     },
+}
+
+pub struct InstallUpdateArgs<'a> {
+    pub yes: &'a bool,
+    pub force: &'a bool,
+    pub no_scripts: &'a bool,
 }

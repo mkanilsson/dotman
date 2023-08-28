@@ -1,5 +1,5 @@
 use clap::Parser;
-use cli::Commands;
+use cli::{Commands, InstallUpdateArgs};
 use config::Config;
 use repo::Repository;
 
@@ -37,16 +37,43 @@ async fn main() {
     };
 
     match &cli.command {
-        Commands::Install { packages } => match commands::install_or_update(&conf, &repo, packages)
-        {
+        Commands::Install {
+            packages,
+            yes,
+            force,
+            no_scripts,
+        } => match commands::install_or_update(
+            &conf,
+            &repo,
+            InstallUpdateArgs {
+                yes,
+                force,
+                no_scripts,
+            },
+            packages,
+        ) {
             Ok(_) => {}
             Err(e) => {
                 e.print_error();
                 return;
             }
         },
-        Commands::Update { packages } => {
-            match commands::install_or_update(&conf, &repo, packages) {
+        Commands::Update {
+            packages,
+            yes,
+            force,
+            no_scripts,
+        } => {
+            match commands::install_or_update(
+                &conf,
+                &repo,
+                InstallUpdateArgs {
+                    yes,
+                    force,
+                    no_scripts,
+                },
+                packages,
+            ) {
                 Ok(_) => {}
                 Err(e) => {
                     e.print_error();
@@ -54,13 +81,26 @@ async fn main() {
                 }
             }
         }
-        Commands::InstallEverything => {
+        Commands::InstallEverything {
+            yes,
+            force,
+            no_scripts,
+        } => {
             let mut all_packages = vec![];
             for pkg in &repo.packages {
                 all_packages.push(pkg.name.clone());
             }
 
-            match commands::install_or_update(&conf, &repo, &all_packages) {
+            match commands::install_or_update(
+                &conf,
+                &repo,
+                InstallUpdateArgs {
+                    yes,
+                    force,
+                    no_scripts,
+                },
+                &all_packages,
+            ) {
                 Ok(_) => {}
                 Err(e) => {
                     e.print_error();
