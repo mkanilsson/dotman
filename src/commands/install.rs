@@ -37,14 +37,20 @@ pub fn install_or_update(
     ));
 
     if !(*args.yes) {
-        // FIXME: Handle OperationInterupted
         let mut confirm = inquire::Confirm::new("Do you want to procced?").with_default(true);
 
         if *args.force {
             confirm = confirm.with_help_message("This might remove existing configurations");
         }
 
-        let result = confirm.prompt()?;
+        let result = match confirm.prompt() {
+            Ok(r) => r,
+            Err(inquire::InquireError::OperationInterrupted) => {
+                print::info("Okay, exiting...");
+                return Ok(());
+            }
+            Err(e) => return Err(Error::Inquire(e)),
+        };
 
         if !result {
             print::info("Okay, exiting...");
