@@ -1,4 +1,4 @@
-use std::fs;
+use std::{fs, io};
 
 use colored::Colorize;
 use indicatif::ProgressBar;
@@ -8,7 +8,8 @@ use crate::{
     config::{Config, GitUpdateType},
     errors::{DotManResult, Error, GitError},
     gitactions::GitWrapper,
-    print,
+    package::Package,
+    print::{self, Printer},
     repo::Repository,
     required_packages, script,
 };
@@ -82,7 +83,7 @@ pub fn install_or_update(
                         install_path.italic()
                     ));
 
-                    unreachable!();
+                    panic!();
                 }
 
                 pp.warning(&format!(
@@ -92,39 +93,10 @@ pub fn install_or_update(
 
                 fs::remove_dir_all(install_path.clone())?;
 
-                pp.info(&format!(
-                    "Cloning {} from {} to {}... ",
-                    pkg.name.italic().bold(),
-                    url.italic(),
-                    install_path.italic()
-                ));
-
-                GitWrapper::clone(&pkg.url(), &pkg.install_path()?)?;
-
-                pp.success(&format!(
-                    "{} cloned from {} to {}! ",
-                    pkg.name.italic().bold(),
-                    url.italic(),
-                    install_path.italic()
-                ));
-
-                if !(*args.no_scripts) {
-                    pp.info(&format!(
-                        "Running `{}` script if it exists...",
-                        ".dotman-postinstall".italic()
-                    ));
-                    script::run_postinstall(&install_path)?;
-                } else {
-                    pp.warning(&format!(
-                        "Not running `{}` may require extra manual configuration...",
-                        ".dotman-install".italic()
-                    ));
-                }
-
-                print::success(&format!(
-                    "{} has been successfully updated!",
-                    pkg.name.bold().italic()
-                ));
+                clone(&pp, &pkg, &args)?;
+            }
+            Err(Error::IO(e)) if e.kind() == io::ErrorKind::NotFound => {
+                clone(&pp, &pkg, &args)?;
             }
             Err(e) => return Err(e),
             Ok(wrapper) => {
@@ -191,6 +163,47 @@ pub fn install_or_update(
             }
         }
     }
+
+    Ok(())
+}
+
+fn clone(pp: &Printer, pkg: &Package, args: &InstallUpdateArgs) -> DotManResult<()> {
+    let install_path = pkg.install_path()?;
+    let url = pkg.url();
+
+    pp.info(&format!(
+        "Cloning {} from {} to {}... ",
+        pkg.name.italic().bold(),
+        url.italic(),
+        install_path.italic()
+    ));
+
+    GitWrapper::clone(&pkg.url(), &pkg.install_path()?)?;
+
+    pp.success(&format!(
+        "{} cloned from {} to {}! ",
+        pkg.name.italic().bold(),
+        url.italic(),
+        install_path.italic()
+    ));
+
+    if !(*args.no_scripts) {
+        pp.info(&format!(
+            "Running `{}` script if it exists...",
+            ".dotman-postinstall".italic()
+        ));
+        script::run_postinstall(&install_path)?;
+    } else {
+        pp.warning(&format!(
+            "Not running `{}` may require extra manual configuration...",
+            ".dotman-install".italic()
+        ));
+    }
+
+    print::success(&format!(
+        "{} has been successfully installed!",
+        pkg.name.bold().italic()
+    ));
 
     Ok(())
 }
