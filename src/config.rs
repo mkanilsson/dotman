@@ -3,6 +3,7 @@ use std::{env::var, fs, io};
 use crate::{
     errors::{DotManResult, Error},
     remote::Remote,
+    utils,
 };
 use serde::Deserialize;
 
@@ -17,13 +18,7 @@ pub struct Config {
 
 impl Config {
     pub fn load() -> DotManResult<Config> {
-        let home_path = match var("HOME") {
-            Ok(path) => Ok(path),
-            Err(_) => Err(Error::MissingHomeVariable),
-        }?;
-
-        let content = match fs::read_to_string(format!("{}/.config/dotman/config.toml", home_path))
-        {
+        let content = match fs::read_to_string(utils::expand("", "~/.config/dotman/config.toml")?) {
             Err(e) if e.kind() == io::ErrorKind::NotFound => return Err(Error::ConfigFileNotFound),
             Err(e) => return Err(e.into()),
             Ok(c) => c,
@@ -37,12 +32,7 @@ impl Config {
     }
 
     pub fn path(&self) -> DotManResult<String> {
-        let home = match var("HOME") {
-            Ok(h) => h,
-            Err(_) => return Err(Error::MissingHomeVariable),
-        };
-
-        Ok(self.path.replace("$HOME", &home))
+        utils::expand("", &self.path)
     }
 }
 

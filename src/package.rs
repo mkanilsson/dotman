@@ -1,12 +1,7 @@
-use std::env::var;
-
 use colored::Colorize;
 use serde::Deserialize;
 
-use crate::{
-    errors::{DotManResult, Error},
-    print,
-};
+use crate::{errors::DotManResult, print, utils};
 
 use super::remote::Remote;
 
@@ -26,12 +21,7 @@ impl Package {
     }
 
     pub fn install_path(&self) -> DotManResult<String> {
-        let home = match var("HOME") {
-            Ok(h) => h,
-            Err(_) => return Err(Error::MissingHomeVariable),
-        };
-
-        Ok(self.install_path.replace("$HOME", &home))
+        utils::expand("", &self.install_path)
     }
 
     pub fn pprint(&self) {

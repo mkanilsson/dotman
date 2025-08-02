@@ -1,6 +1,7 @@
 use std::{fs, io};
 
 use colored::Colorize;
+
 use indicatif::ProgressBar;
 
 use crate::{
@@ -11,7 +12,8 @@ use crate::{
     package::Package,
     print::{self, Printer},
     repo::Repository,
-    required_packages, script,
+    required_packages,
+    script::Script,
 };
 
 pub fn install_or_update(
@@ -69,6 +71,12 @@ pub fn install_or_update(
         let url = pkg.url();
 
         let pp = print::Printer::new(pkg.name.clone());
+
+        let script = match Script::load(&install_path, &pp) {
+            Ok(s) => Some(s),
+            Err(Error::MissingScript) => None,
+            Err(e) => return Err(e),
+        };
 
         pp.info(&format!(
             "Looking if '{}' already exists...",
@@ -137,13 +145,15 @@ pub fn install_or_update(
                 if !(*args.no_scripts) {
                     pp.info(&format!(
                         "Running `{}` script if it exists...",
-                        ".dotman-postupdate".italic()
+                        ".dotman.lua:M.post_update".italic()
                     ));
-                    script::run_postupdate(&install_path)?;
+                    if let Some(script) = script {
+                        script.run_postupdate()?;
+                    }
                 } else {
                     pp.warning(&format!(
                         "Not running `{}` may require extra manual configuration...",
-                        ".dotman-postupdate".italic()
+                        ".dotman.lua:M.post_update".italic()
                     ));
                 }
 
@@ -178,6 +188,12 @@ fn clone(pp: &Printer, pkg: &Package, args: &InstallUpdateArgs) -> DotManResult<
         install_path.italic()
     ));
 
+    let script = match Script::load(&install_path, &pp) {
+        Ok(s) => Some(s),
+        Err(Error::MissingScript) => None,
+        Err(e) => return Err(e),
+    };
+
     GitWrapper::clone(&pkg.url(), &pkg.install_path()?)?;
 
     pp.success(&format!(
@@ -189,14 +205,17 @@ fn clone(pp: &Printer, pkg: &Package, args: &InstallUpdateArgs) -> DotManResult<
 
     if !(*args.no_scripts) {
         pp.info(&format!(
-            "Running `{}` script if it exists...",
-            ".dotman-postinstall".italic()
+            "Running `{}` function if it exists...",
+            ".dotman.lua:M.post_install".italic()
         ));
-        script::run_postinstall(&install_path)?;
+
+        if let Some(script) = script {
+            script.run_postinstall()?;
+        }
     } else {
         pp.warning(&format!(
             "Not running `{}` may require extra manual configuration...",
-            ".dotman-install".italic()
+            ".dotman.lua:M.post_install".italic()
         ));
     }
 

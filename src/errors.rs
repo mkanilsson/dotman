@@ -14,6 +14,7 @@ pub enum GitError {
 pub enum Error {
     ConfigFileNotFound,
     MissingHomeVariable,
+    MissingScript,
 
     Parse(toml::de::Error),
     IO(std::io::Error),
@@ -25,12 +26,18 @@ pub enum Error {
     MalformattedPackage(String),
     MalformattedPackageWithError(String, toml::de::Error),
     UnknownPackage(String),
+
+    LuaError(mlua::Error),
+    JSONError(serde_json::Error),
+    ExpectedTable,
 }
 
 impl Error {
     fn print(&self, func: fn(&str) -> ()) {
         match self {
             Error::ConfigFileNotFound => func("Config file not found..."),
+            Error::MissingScript => func(".dotman.lua file not found..."),
+            Error::ExpectedTable => func(".dotman.lua should return a table..."),
             Error::Parse(e) => func(&format!("Parse error...\n\t{}", e.message())),
             Error::IO(e) => func(&format!("IO error...\n\t{}", &e.to_string())),
             Error::Git(e) => match e {
@@ -46,7 +53,13 @@ impl Error {
             Error::RemoteNotFound(message) => func(message),
             Error::UnknownPackage(p) => func(&format!("Package '{p}' can't be found...")),
             Error::Inquire(e) => func(&format!("Something went wrong with inquire...\n\t{}", e)),
+            Error::LuaError(e) => func(&format!("Something went wrong in lua...\n\t{}", e)),
+            Error::JSONError(e) => func(&format!("Something went wrong with json...\n\t{}", e)),
         }
+    }
+
+    pub fn print_warning(&self) {
+        self.print(print::warning)
     }
 
     pub fn print_error(&self) {
@@ -79,6 +92,18 @@ impl From<FromUtf8Error> for Error {
 impl From<InquireError> for Error {
     fn from(value: InquireError) -> Self {
         Self::Inquire(value)
+    }
+}
+
+impl From<mlua::Error> for Error {
+    fn from(value: mlua::Error) -> Self {
+        Self::LuaError(value)
+    }
+}
+
+impl From<serde_json::Error> for Error {
+    fn from(value: serde_json::Error) -> Self {
+        Self::JSONError(value)
     }
 }
 

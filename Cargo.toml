@@ -10,5 +10,7 @@ clap = { version = "4.3.24", features = ["derive"] }
 colored = "2.0.4"
 indicatif = "0.17.6"
 inquire = "0.6.2"
+mlua = { version = "0.10.2", features = ["lua54", "vendored", "async", "send", "serialize"] }
 serde = { version = "1.0.186", features = ["derive"] }
+serde_json = "1.0.135"
 toml = "0.7.6"

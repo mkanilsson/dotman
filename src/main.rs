@@ -15,6 +15,7 @@ mod repo;
 mod required_packages;
 mod script;
 mod source;
+mod utils;
 
 fn main() {
     let cli = cli::Cli::parse();
@@ -109,5 +110,6 @@ fn main() {
         }
         Commands::Search { query } => commands::search(&repo, &query),
         Commands::Inspect { package } => commands::inspect(&repo, &package),
+        Commands::Script { function, packages } => commands::script(&repo, &packages, &function),
     }
 }

@@ -64,12 +64,18 @@ impl Repository {
 
     // This should only be called when the package is known to exist
     pub fn get_package_from_string(&self, name: &str) -> Package {
+        return self
+            .try_get_package_from_string(name)
+            .expect(&format!("{name} to exist"));
+    }
+
+    pub fn try_get_package_from_string(&self, name: &str) -> Option<Package> {
         for pkg in &self.packages {
             if pkg.name == name {
-                return pkg.clone();
+                return Some(pkg.clone());
             }
         }
 
-        unreachable!();
+        return None;
     }
 }

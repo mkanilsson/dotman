@@ -1,4 +1,4 @@
-use clap::{command, Parser, Subcommand};
+use clap::{command, Parser, Subcommand, ValueEnum};
 
 /// Manage dotfiles easially
 #[derive(Parser)]
@@ -24,7 +24,7 @@ pub enum Commands {
         #[arg(long)]
         force: bool,
 
-        /// Don't run .dotman-postinstall or .dotman-postupdate script
+        /// Don't run .dotman.lua functions
         #[arg(long)]
         no_scripts: bool,
     },
@@ -67,6 +67,20 @@ pub enum Commands {
         #[arg(long)]
         no_scripts: bool,
     },
+
+    Script {
+        #[arg(long)]
+        function: Function,
+
+        #[clap(required = true)]
+        packages: Vec<String>,
+    },
+}
+
+#[derive(ValueEnum, Debug, Clone)]
+pub enum Function {
+    PostInstall,
+    PostUpdate,
 }
 
 pub struct InstallUpdateArgs<'a> {
