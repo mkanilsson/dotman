@@ -5,7 +5,7 @@ use crate::{
     print::Printer,
     utils::{expand, from_cwd, serde_json_value_to_mlua_value},
 };
-use mlua::{Function, IntoLua, Lua, LuaSerdeExt, Value};
+use mlua::{Function, IntoLua, Lua, Value};
 
 pub struct Script {
     post_install: Option<mlua::Function>,

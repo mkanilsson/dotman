@@ -13,7 +13,7 @@ Arguments:
 Options:
   -y, --yes         Skip confirmation
       --force       Force install, this will override existing configurations
-      --no-scripts  Don't run .dotman-postinstall or .dotman-postupdate script
+      --no-scripts  Don't run .dotman.lua script
   -h, --help        Print help
   -V, --version     Print version
 ```
@@ -36,7 +36,7 @@ Arguments:
 Options:
   -y, --yes         Skip confirmation
       --force       Force install, this will override existing configurations
-      --no-scripts  Don't run .dotman-postinstall or .dotman-postupdate script
+      --no-scripts  Don't run .dotman.lua script
   -h, --help        Print help
   -V, --version     Print version
 ```
@@ -46,7 +46,7 @@ Example:
 
 > NOTE: `update` and `install` are synonyms
 
-## Update
+## Install everything
 
 ```bash
 Install every package avaliable in the repository
@@ -56,7 +56,7 @@ Usage: dotman install-everything [OPTIONS]
 Options:
   -y, --yes         Skip confirmation
       --force       Force install, this will override existing configurations
-      --no-scripts  Don't run .dotman-postinstall or .dotman-postupdate script
+      --no-scripts  Don't run .dotman.lua script
   -h, --help        Print help
   -V, --version     Print version
 ```
