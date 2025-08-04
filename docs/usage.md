@@ -1,5 +1,18 @@
 # Usage
 
+## Config
+
+Install configuration at `$HOME/.config/dotman/config.toml`.
+
+Example config file:
+```toml
+remote = { host = "github", owner = "mkanilsson-dotfiles", repo = "main" }
+path = "$HOME/Documents/dev/rice/dotman-main"
+
+[git]
+update-type = "fetch-rebase" # Can also be "pull"
+```
+
 ## Install
 
 ```bash
